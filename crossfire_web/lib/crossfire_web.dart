@@ -189,6 +189,25 @@ class BrowserFirebaseCollection implements FirebaseCollection {
     var q = _collection.where(field, op, value);
     return new BrowserFirebaseQuery(q);
   }
+
+  @override
+  FirebaseQuery startAfter({
+    FirebaseDocument snapshot,
+    List fieldValues,
+  }) {
+    DocumentSnapshot snap;
+
+    if (snapshot != null) {
+      final doc = snapshot as BrowserDocumentSnapshot;
+      snap = doc._snapshot;
+    }
+
+    final q = _collection.startAfter(
+      snapshot: snap,
+      fieldValues: fieldValues,
+    );
+    return BrowserFirebaseQuery(q);
+  }
 }
 
 class BrowserDocumentSnapshot implements FirebaseDocument {
@@ -329,6 +348,24 @@ class BrowserFirebaseQuery extends FirebaseQuery {
     }
     var q = _ref.where(field, op, value);
     return new BrowserFirebaseQuery(q);
+  }
+
+  @override
+  FirebaseQuery startAfter({
+    FirebaseDocument snapshot,
+    List fieldValues,
+  }) {
+    DocumentSnapshot snap;
+    if (snapshot != null) {
+      final doc = snapshot as BrowserDocumentSnapshot;
+      snap = doc._snapshot;
+    }
+
+    final q = _ref.startAfter(
+      snapshot: snap,
+      fieldValues: fieldValues,
+    );
+    return BrowserFirebaseQuery(q);
   }
 }
 

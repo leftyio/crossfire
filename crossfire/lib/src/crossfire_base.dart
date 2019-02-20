@@ -48,6 +48,10 @@ abstract class FirebaseCollection {
     bool isNull,
   });
   FirebaseQuery orderBy(String field, {bool descending: false});
+  FirebaseQuery startAfter({
+    FirebaseDocument snapshot,
+    List fieldValues,
+  });
 }
 
 abstract class FirebaseQuerySnapshot {
@@ -91,6 +95,10 @@ abstract class FirebaseQuery {
   });
   FirebaseQuery orderBy(String field, {bool descending: false});
   FirebaseQuery limit(int length);
+  FirebaseQuery startAfter({
+    FirebaseDocument snapshot,
+    List fieldValues,
+  });
 }
 
 enum FireDocumentChangeType {
