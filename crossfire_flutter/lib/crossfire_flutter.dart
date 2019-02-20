@@ -112,6 +112,12 @@ class FlutterFirebase implements Firebase {
   Stream<bool> get onConnectivityUpdated => _connectionChangedSink.stream;
 
   @override
+  Future<void> runTransaction(TransactionRunner updateFunction) =>
+      _firestore.runTransaction((t) {
+        updateFunction(FlutterFirebaseTransaction(t));
+      });
+
+  @override
   Future<FirebaseBatch> batch() async {
     final b = _firestore.batch();
     return FlutterFirebaseBatch(b);
@@ -312,6 +318,51 @@ class FlutterStorageMetadata implements FirebaseStorageMetadata {
   String get path => _metadata.path;
   String get contentType => _metadata.contentType;
   int get size => _metadata.sizeBytes;
+}
+
+class FlutterFirebaseTransaction implements FirebaseTransaction {
+  final Transaction _transaction;
+
+  FlutterFirebaseTransaction(this._transaction);
+
+  @override
+  Future<FirebaseTransaction> delete(
+    FirebaseDocumentReference documentRef,
+  ) async {
+    final doc = documentRef as FlutterFirebaseDocReference;
+    await _transaction.delete(doc.ref);
+    return this;
+  }
+
+  @override
+  Future<FirebaseDocument> getDocument(
+      FirebaseDocumentReference documentRef) async {
+    final doc = documentRef as FlutterFirebaseDocReference;
+    final snap = await _transaction.get(doc.ref);
+    return FlutterFirebaseDoc(snap);
+  }
+
+  @override
+  Future<FirebaseTransaction> setData(
+    FirebaseDocumentReference documentRef,
+    Map<String, dynamic> data, {
+    bool merge = false,
+  }) async {
+    final doc = documentRef as FlutterFirebaseDocReference;
+    await _transaction.set(doc.ref, data);
+    return this;
+  }
+
+  @override
+  Future<FirebaseTransaction> update(
+    FirebaseDocumentReference documentRef, {
+    Map<String, dynamic> data,
+    List fieldsAndValues,
+  }) async {
+    final doc = documentRef as FlutterFirebaseDocReference;
+    await _transaction.update(doc.ref, data);
+    return this;
+  }
 }
 
 class FlutterFirebaseBatch implements FirebaseBatch {

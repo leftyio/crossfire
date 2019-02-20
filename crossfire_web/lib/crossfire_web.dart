@@ -87,6 +87,10 @@ class FirebaseWeb implements Firebase {
     var b = _store.batch();
     return BrowserFirebaseBatch(b);
   }
+
+  @override
+  Future<void> runTransaction(TransactionRunner updateFunction) => _store
+      .runTransaction((t) => updateFunction(BrowserFirebaseTransaction(t)));
 }
 
 class BrowserFirebaseQuerySnapshot implements FirebaseQuerySnapshot {
@@ -364,5 +368,53 @@ class BrowserFirebaseBatch implements FirebaseBatch {
     final b =
         _batch.update(doc._ref, data: data, fieldsAndValues: fieldsAndValues);
     return BrowserFirebaseBatch(b);
+  }
+}
+
+class BrowserFirebaseTransaction implements FirebaseTransaction {
+  final Transaction _transaction;
+
+  BrowserFirebaseTransaction(this._transaction);
+
+  @override
+  Future<FirebaseTransaction> delete(
+      FirebaseDocumentReference documentRef) async {
+    final doc = documentRef as BrowserFirebaseDocReference;
+    final t = _transaction.delete(doc._ref);
+    return BrowserFirebaseTransaction(t);
+  }
+
+  @override
+  Future<FirebaseDocument> getDocument(
+      FirebaseDocumentReference documentRef) async {
+    final doc = documentRef as BrowserFirebaseDocReference;
+    final snap = await _transaction.get(doc._ref);
+    return BrowserDocumentSnapshot(snap);
+  }
+
+  @override
+  Future<FirebaseTransaction> setData(
+    FirebaseDocumentReference documentRef,
+    Map<String, dynamic> data, {
+    bool merge = false,
+  }) async {
+    final doc = documentRef as BrowserFirebaseDocReference;
+    final t = _transaction.set(doc._ref, data, SetOptions(merge: merge));
+    return BrowserFirebaseTransaction(t);
+  }
+
+  @override
+  Future<FirebaseTransaction> update(
+    FirebaseDocumentReference documentRef, {
+    Map<String, dynamic> data,
+    List fieldsAndValues,
+  }) async {
+    final doc = documentRef as BrowserFirebaseDocReference;
+    final t = _transaction.update(
+      doc._ref,
+      data: data,
+      fieldsAndValues: fieldsAndValues,
+    );
+    return BrowserFirebaseTransaction(t);
   }
 }
